@@ -1,0 +1,20 @@
+{
+  "name": "watcher",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [
+    "Terraria",
+    "File-Transfer"
+  ],
+  "author": "Mertz Lumio",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "daemonize-process": "^4.1.0",
+    "express": "^4.21.0"
+  }
+}

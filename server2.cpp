@@ -12,19 +12,19 @@ namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
-void send_request(char* s){
+void send_request(std::string t){
     net::io_context ioc;
     tcp::resolver resolver(ioc);
     beast::tcp_stream stream(ioc);
 
-    auto const results = resolver.resolve("192.168.1.11", "3000"); 
+    auto const results = resolver.resolve("192.168.1.9", "3000"); 
     net::connect(stream.socket(), results.begin(), results.end());
 
-    http::request<http::string_body> req{http::verb::get, "check_time", 11};
-    req.body() = "your request body content";
+    http::request<http::string_body> req{http::verb::get, "/checktime", 11};
+    req.body() = t;
     req.prepare_payload();
-    req.set(http::field::host, "192.168.1.11"); 
-    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+    req.set(http::field::host, "192.168.1.9"); 
+    req.set(http::field::user_agent, "Recall");
 
     http::write(stream, req);
 
@@ -72,7 +72,8 @@ void start_server(){
     }
 }
 int main() {
-    char* s=getFileCreationTime("G://watcher//watched_folder");
-    send_request(s);
+    std::string t=getFileCreationTime("G://watcher//watched_folder//The_Hidden_Bedrock_of_Ramen.wld");
+    send_request(t);
+    //start_server();
     return 0;
 }

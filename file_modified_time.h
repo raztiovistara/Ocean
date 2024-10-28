@@ -1,13 +1,14 @@
-#include <stdio.h>
+#include <iostream>
+#include <string>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/types.h>
 
-char* getFileCreationTime(char *path) {
+std::string getFileCreationTime(char *path) {
     struct stat attr;
     stat(path, &attr);
-    printf("Last modified time: %s", ctime(&attr.st_mtime));
-    printf("");
-    return(ctime(&attr.st_mtime));
+    std::cout<<"Last modified time: "<<(long)attr.st_mtime<<std::endl;
+    //printf("Last modified time: %ld\n", (long)attr.st_mtime);
+    return(std::to_string(attr.st_mtime));
 }
 

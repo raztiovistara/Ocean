@@ -11,18 +11,9 @@ namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
-// std::tm parse_time(const std::string& time_str) {
-//     std::tm tm = {};
-//     std::istringstream ss(time_str);
-//     ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S"); 
-//     return tm;
-// }
-void checktime(char* my_time,const std::string& body){
-  
-}
-int main() {
-    char* time= getFileCreationTime("G://ToDo.txt");
-    try {
+void run_server(std::string time)
+{
+    try { 
         net::io_context ioc;
         tcp::acceptor acceptor{ ioc, {tcp::v4(), 3000} };
 
@@ -34,17 +25,24 @@ int main() {
             http::request<http::string_body> req;
             http::read(socket, buffer, req);
 
-            std::string response_body = "OK";
+            std::string response_body = "";
 
-            if (req.target() == "/status") {//strcmp("/Opera", target) == 0
+            if (req.target() == "/status") {
                 response_body = "Server is running";
             }
             if(req.target() == "/checktime"){
-                checktime(time, req.body());
+                if(my_time < req.body())
+                {
+                    //transfer file from this side
+                }
+                else
+                {
+                    //recive file from that side
+                }
             }
-
+            response_body = "OK";
             http::response<http::string_body> res{ http::status::ok, req.version() };
-            res.set(http::field::server, "Boost.Beast");
+            res.set(http::field::server, "MIni Server");
             res.set(http::field::content_type, "text/plain");
             res.keep_alive(req.keep_alive());
             res.body() = response_body;
@@ -60,4 +58,9 @@ int main() {
     catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
+}
+
+int main() {
+    std::string time= getFileCreationTime("G://watcher//watched_folder//hidden_folder//The_Hidden_Bedrock_of_Ramen.wld");
+    run_server(time);  
 }

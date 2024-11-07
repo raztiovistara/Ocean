@@ -31,13 +31,15 @@ void run_server(std::string time)
                 response_body = "Server is running";
             }
             if(req.target() == "/checktime"){
-                if(my_time < req.body())
+                if(time < req.body())
                 {
                     //transfer file from this side
+                     response_body = "Your file";
                 }
                 else
                 {
                     //recive file from that side
+                    response_body = "My file";
                 }
             }
             response_body = "OK";

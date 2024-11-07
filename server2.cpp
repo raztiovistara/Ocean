@@ -7,6 +7,8 @@
 #include <ctime>
 #include "file_modified_time.h"
 
+#define IP "192.168.1.11"
+
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
@@ -17,13 +19,13 @@ void send_request(std::string t){
     tcp::resolver resolver(ioc);
     beast::tcp_stream stream(ioc);
 
-    auto const results = resolver.resolve("192.168.1.9", "3000"); 
+    auto const results = resolver.resolve(IP, "3000"); 
     net::connect(stream.socket(), results.begin(), results.end());
 
     http::request<http::string_body> req{http::verb::get, "/checktime", 11};
     req.body() = t;
     req.prepare_payload();
-    req.set(http::field::host, "192.168.1.9"); 
+    req.set(http::field::host, IP); 
     req.set(http::field::user_agent, "Recall");
 
     http::write(stream, req);

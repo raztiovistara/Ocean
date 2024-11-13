@@ -5,9 +5,10 @@
 #include <string>
 #include <sys/stat.h>
 #include <ctime>
+#include <fstream>
 #include "file_modified_time.h"
 
-#define IP "192.168.1.11"
+#define IP "192.168.1.4"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -33,6 +34,11 @@ void send_request(std::string t){
     beast::flat_buffer buffer;
     http::response<http::string_body> res;
     http::read(stream, buffer, res);
+
+    if(res.body == "Sending")
+    {
+        
+    }
 
     std::cout << res << std::endl;
 }

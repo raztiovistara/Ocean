@@ -4,20 +4,27 @@
 #include <string>
 #include <sys/stat.h>
 #include <ctime>
+#include <fstream>
 #include "file_modified_time.h"
+
+#define IP "192.168.1.4"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
-void run_server(std::string time)
+void send_file(tcp::socket& socket, const std::string& filepath);
+void receive_file(tcp::socket& socket, const std::string& filepath);
+
+void run_server(std::string time,std::string filepath)
 {
     try { 
         net::io_context ioc;
         tcp::acceptor acceptor{ ioc, {tcp::v4(), 3000} };
 
         for (;;) {
+            int c = 0;
             tcp::socket socket{ ioc };
             acceptor.accept(socket);
 
@@ -30,19 +37,22 @@ void run_server(std::string time)
             if (req.target() == "/status") {
                 response_body = "Server is running";
             }
-            if(req.target() == "/checktime"){
+            else if(req.target() == "/checktime"){
                 if(time < req.body())
                 {
-                    //transfer file from this side
-                     response_body = "Your file";
+                    response_body = "Reciveing";
+                    c = 1;
                 }
-                else
+                else if(time > req.body())
                 {
-                    //recive file from that side
-                    response_body = "My file";
+                    response_body = "Sending";
+                    c = 2;
                 }
             }
-            response_body = "OK";
+            else
+            {
+                response_body = "Invalid";
+            }
             http::response<http::string_body> res{ http::status::ok, req.version() };
             res.set(http::field::server, "MIni Server");
             res.set(http::field::content_type, "text/plain");
@@ -55,6 +65,7 @@ void run_server(std::string time)
             std::cout << "Request target: " << req.target() << std::endl;
             beast::error_code ec;
             socket.shutdown(tcp::socket::shutdown_send, ec);
+            
         }
     }
     catch (const std::exception& e) {
@@ -62,7 +73,33 @@ void run_server(std::string time)
     }
 }
 
+void send_file(tcp::socket& socket, const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file) {
+        std::cerr << "Could not open the file: " << filepath << std::endl;
+        return;
+    }
+
+    char buffer[1024];
+    while (file.read(buffer, sizeof(buffer))) {
+        net::write(socket, net::buffer(buffer, file.gcount()));
+    }
+    net::write(socket, net::buffer(buffer, file.gcount()));
+    std::cout << "File sent: " << filepath << std::endl;
+}
+
+void receive_file(tcp::socket& socket, const std::string& filepath) {
+    std::ofstream file(filepath, std::ios::binary);
+    char buffer[1024];
+    size_t bytes_received;
+
+    while ((bytes_received = socket.read_some(net::buffer(buffer))) > 0) {
+        file.write(buffer, bytes_received);
+    }
+    std::cout << "File received: " << filepath << std::endl;
+}
+
 int main() {
     std::string time= getFileCreationTime("G://watcher//watched_folder//hidden_folder//The_Hidden_Bedrock_of_Ramen.wld");
-    run_server(time);  
+    run_server(time, "G://watcher//watched_folder//hidden_folder//The_Hidden_Bedrock_of_Ramen.wld");  
 }

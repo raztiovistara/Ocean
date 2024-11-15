@@ -16,6 +16,9 @@ namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
+void send_file(tcp::socket& socket, const std::string& filepath);
+void receive_file();
+
 void send_request(std::string t, std::string file_path){
     net::io_context ioc;
     tcp::resolver resolver(ioc);
@@ -36,14 +39,14 @@ void send_request(std::string t, std::string file_path){
     http::response<http::string_body> res;
     http::read(stream, buffer, res);
 
-    if(res.body == "Send")
+    if(res.body() == "Send")
     {
-        send_file();
+        send_file(stream.socket(), file_path);
     }
 
-    if(res.body == "Recive")
+    if(res.body() == "Recive")
     {
-        recieve_file();
+        receive_file();
     }
 
     std::cout << res << std::endl;
@@ -62,6 +65,11 @@ void send_file(tcp::socket& socket, const std::string& filepath) {
     }
     net::write(socket, net::buffer(buffer, file.gcount()));
     std::cout << "File sent: " << filepath << std::endl;
+}
+
+void receive_file()
+{
+
 }
 
 void start_server(){

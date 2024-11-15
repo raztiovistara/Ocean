@@ -9,3 +9,6 @@ add_executable(server server.cpp)
 
 target_link_libraries(server ws2_32)
 
+add_executable(server2 server2.cpp)
+
+target_link_libraries(server ws2_32)

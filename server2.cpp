@@ -9,13 +9,14 @@
 #include "file_modified_time.h"
 
 #define IP "192.168.1.4"
+#define PATH "G://watcher//watched_folder//The_Hidden_Bedrock_of_Ramen.wld"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
-void send_request(std::string t){
+void send_request(std::string t, std::string file_path){
     net::io_context ioc;
     tcp::resolver resolver(ioc);
     beast::tcp_stream stream(ioc);
@@ -35,13 +36,34 @@ void send_request(std::string t){
     http::response<http::string_body> res;
     http::read(stream, buffer, res);
 
-    if(res.body == "Sending")
+    if(res.body == "Send")
     {
-        
+        send_file();
+    }
+
+    if(res.body == "Recive")
+    {
+        recieve_file();
     }
 
     std::cout << res << std::endl;
 }
+
+void send_file(tcp::socket& socket, const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file) {
+        std::cerr << "Could not open the file: " << filepath << std::endl;
+        return;
+    }
+
+    char buffer[1024];
+    while (file.read(buffer, sizeof(buffer))) {
+        net::write(socket, net::buffer(buffer, file.gcount()));
+    }
+    net::write(socket, net::buffer(buffer, file.gcount()));
+    std::cout << "File sent: " << filepath << std::endl;
+}
+
 void start_server(){
     try {
         net::io_context ioc;
@@ -80,8 +102,8 @@ void start_server(){
     }
 }
 int main() {
-    std::string t=getFileCreationTime("G://watcher//watched_folder//The_Hidden_Bedrock_of_Ramen.wld");
-    send_request(t);
+    std::string t=getFileCreationTime(PATH);
+    send_request(t, PATH);
     //start_server();
     return 0;
 }

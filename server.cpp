@@ -8,6 +8,7 @@
 #include "file_modified_time.h"
 
 #define IP "192.168.1.4"
+#define PATH "G://watcher//watched_folder//hidden_folder//The_Hidden_Bedrock_of_Ramen.wld"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -40,12 +41,12 @@ void run_server(std::string time,std::string filepath)
             else if(req.target() == "/checktime"){
                 if(time < req.body())
                 {
-                    response_body = "Reciveing";
+                    response_body = "Send";
                     c = 1;
                 }
                 else if(time > req.body())
                 {
-                    response_body = "Sending";
+                    response_body = "Receive";
                     c = 2;
                 }
             }
@@ -100,6 +101,6 @@ void receive_file(tcp::socket& socket, const std::string& filepath) {
 }
 
 int main() {
-    std::string time= getFileCreationTime("G://watcher//watched_folder//hidden_folder//The_Hidden_Bedrock_of_Ramen.wld");
-    run_server(time, "G://watcher//watched_folder//hidden_folder//The_Hidden_Bedrock_of_Ramen.wld");  
+    std::string time= getFileCreationTime(PATH);
+    run_server(time, PATH);  
 }
